@@ -124,10 +124,8 @@ export default function ShowsComponent() {
         },
 
         Edit: ({ cell, row }) => {
-          // Redux se organisers list lao
           const events = useAppSelector((state) => state.event.data || []);
 
-          // Initial value -> pehle se saved ID agar hai
           const initialValue = Number(cell.getValue<number>()) || "";
           const [selected, setSelected] = React.useState<number | "">(
             initialValue
@@ -136,8 +134,6 @@ export default function ShowsComponent() {
           const handleChange = (event: any) => {
             const value = event.target.value;
             setSelected(value);
-
-            // row me save karo (single value)
             row._valuesCache["eventId"] = value;
           };
 
@@ -152,7 +148,7 @@ export default function ShowsComponent() {
                   return <em>Select Event</em>;
                 }
                 const event = events.find(
-                  (o) => o.eventId === Number(o.eventId)
+                  (o) => o.eventId === Number(selectedId)
                 );
                 return event ? event.name : "";
               }}
@@ -435,7 +431,7 @@ export default function ShowsComponent() {
     async ({ values, row, table }) => {
       try {
         const result = await (dispatch(
-          updateShow({ id: row.original.venueId, formData: values })
+          updateShow({ id: row.original.showId, formData: values })
         ) as unknown as Promise<{ success: boolean }>);
 
         console.log(result);
@@ -534,7 +530,7 @@ export default function ShowsComponent() {
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
         >
-          {internalEditComponents.filter((_, index) => index < 7)}
+          {internalEditComponents.filter((_, index) => index < 6)}
           {/* Skip active field */}
         </DialogContent>
         <DialogActions>

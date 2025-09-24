@@ -266,7 +266,7 @@ export default function Regions() {
           sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
         >
           {internalEditComponents.filter(
-            (_, index) => index !== 1 && index !== 2 
+            (_, index) => index !== 0 && index !== 2 
           )  }
         </DialogContent>
         <DialogActions>

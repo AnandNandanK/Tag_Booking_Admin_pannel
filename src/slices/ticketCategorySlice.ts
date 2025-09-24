@@ -14,6 +14,7 @@ showId:number;
   price: number;
   capacity: number;
   description: string;
+  bookingType:string;
   layout: TicketCategoryLayout;
 }
 

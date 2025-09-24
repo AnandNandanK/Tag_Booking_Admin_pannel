@@ -106,6 +106,7 @@ export default function Regions() {
             ),
         },
       },
+      
       { accessorKey: "countryName", header: "Country Name", required: true },
 
       {

@@ -88,57 +88,72 @@ export default function Artist() {
             ),
         },
       },
-   {
-  accessorKey: "dateOfBirth",
-  header: "Date Of Birth",
-  Cell: ({ cell }) => {
-    const value = cell.getValue<string>() || "";
-    return value ? dayjs(value).format("YYYY-MM-DD") : "Not Provided"; // 👈 display
-  },
-  Edit: ({ cell, row }) => {
-    const initialValue = cell.getValue<string>() || "";
+      {
+        accessorKey: "imageUrl",
+        header: "Image Url",
+        muiEditTextFieldProps: {
+          required: true,
+          error: !!artistError?.description,
+          helperText: artistError?.description,
+          onFocus: () =>
+            dispatch(
+              setArtistsError({
+                ...artistError,
+                description: undefined,
+              })
+            ),
+        },
+      },
+      {
+        accessorKey: "dateOfBirth",
+        header: "Date Of Birth",
+        Cell: ({ cell }) => {
+          const value = cell.getValue<string>() || "";
+          return value ? dayjs(value).format("YYYY-MM-DD") : "Not Provided"; // 👈 display
+        },
+        Edit: ({ cell, row }) => {
+          const initialValue = cell.getValue<string>() || "";
 
-    const [selectedDate, setSelectedDate] = React.useState<Dayjs | null>(
-      initialValue ? dayjs(initialValue) : null // 👈 parse normally
-    );
+          const [selectedDate, setSelectedDate] = React.useState<Dayjs | null>(
+            initialValue ? dayjs(initialValue) : null // 👈 parse normally
+          );
 
-    const handleChange = (date: Dayjs | null) => {
-      setSelectedDate(date);
+          const handleChange = (date: Dayjs | null) => {
+            setSelectedDate(date);
 
-      // ✅ Save in YYYY-MM-DD format for backend
-      const formatted = date ? date.format("YYYY-MM-DD") : "";
-      row._valuesCache["dateOfBirth"] = formatted;
-    };
+            // ✅ Save in YYYY-MM-DD format for backend
+            const formatted = date ? date.format("YYYY-MM-DD") : "";
+            row._valuesCache["dateOfBirth"] = formatted;
+          };
 
-    return (
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DatePicker
-          label="Select DOB"
-          value={selectedDate}
-          onChange={handleChange}
-          format="YYYY-MM-DD" // 👈 input box me bhi YYYY-MM-DD
-          slotProps={{
-            textField: {
-              required: true,
-              error: !!artistError?.dateOfBirth,
-              helperText: artistError?.description,
-              onFocus: () =>
-                dispatch(
-                  setArtistsError({
-                    ...artistError,
-                    description: undefined,
-                  })
-                ),
-              size: "small",
-            },
-          }}
-        />
-      </LocalizationProvider>
-    );
-  },
-}
+          return (
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Select DOB"
+                value={selectedDate}
+                onChange={handleChange}
+                format="YYYY-MM-DD" // 👈 input box me bhi YYYY-MM-DD
+                slotProps={{
+                  textField: {
+                    required: true,
+                    error: !!artistError?.dateOfBirth,
+                    helperText: artistError?.description,
+                    onFocus: () =>
+                      dispatch(
+                        setArtistsError({
+                          ...artistError,
+                          description: undefined,
+                        })
+                      ),
+                    size: "small",
+                  },
+                }}
+              />
+            </LocalizationProvider>
+          );
+        },
+      },
 
-,
       {
         accessorKey: "nationality",
         header: "Nationality",
@@ -199,7 +214,7 @@ export default function Artist() {
           ...values,
         };
 
-        console.log(values)
+        console.log(values);
 
         const result = await (dispatch(
           createArtist(createData)
@@ -301,7 +316,7 @@ export default function Artist() {
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
         >
-          {internalEditComponents.filter((_, index) => index != 7)}
+          {internalEditComponents}
 
           {/* Custom comments field - only appears in create dialog */}
         </DialogContent>
@@ -318,7 +333,7 @@ export default function Artist() {
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
         >
-          {internalEditComponents.filter((_, index) => index != 7)}
+          {internalEditComponents}
           {/* Skip active field */}
         </DialogContent>
         <DialogActions>

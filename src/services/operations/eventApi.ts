@@ -2,6 +2,7 @@ import axios from "axios";
 import { apiConnector } from "../apiConnetor";
 
 import {
+  setErrorMassage,
   setEvents,
   setEventsError,
   type EventsErrorResponse,
@@ -143,7 +144,13 @@ export function updateEvent({
         const fieldErrors: EventsErrorResponse | null =
           error.response?.data?.data || null;
         dispatch(setEventsError(fieldErrors));
+
         console.error("Axios error:", error.response);
+
+        console.log(error.response?.data.message);
+
+        dispatch(setErrorMassage(error.response?.data.message))
+
       } else {
         console.error("Unknown error:", error);
       }

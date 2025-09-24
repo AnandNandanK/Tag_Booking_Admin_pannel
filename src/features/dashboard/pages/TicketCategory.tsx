@@ -29,7 +29,6 @@ import {
 import {
   listAllShows,
   listAllShowsByEvent,
-  updateShow,
 } from "../../../services/operations/showApi";
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -44,7 +43,6 @@ export default function TicketCategory() {
   const dispatch = useAppDispatch();
 
   const category = useAppSelector((state) => state.ticketCategory.data || []);
-  const events = useAppSelector((state) => state.event.data || []);
   //   console.log(category);
 
   //   console.log(category);
@@ -121,140 +119,185 @@ export default function TicketCategory() {
             ),
         },
       },
-     {
-  accessorKey: "showId",
-  header: "Show",
 
-  Edit: ({ cell, row }) => {
-    const events = useAppSelector((state) => state.event.data || []);
-    const shows = useAppSelector((state) => state.shows.data || []);
+      {
+        accessorKey: "showId",
+        header: "Show",
 
-    const dispatch = useAppDispatch();
+        Edit: ({ cell, row }) => {
+          console.log(cell.id)
+          const events = useAppSelector((state) => state.event.data || []);
+          const shows = useAppSelector((state) => state.shows.data || []);
 
-    // row se showId nikal lo
-    const initialShowId = row.original.showId || "";
-    const initialShow = shows.find((s) => s.showId === initialShowId);
+          const [formData, setFormData] = useState({
+            rows: "",
+            seatsPerRow: "",
+            rowLabels: "",
+          });
 
-    // agar show mila hai to uska eventId lo, warna empty
-    const initialEventId = initialShow?.eventId || "";
+          const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const { name, value } = e.target;
 
-    const [selectedEventId, setSelectedEventId] = React.useState<
-      number | ""
-    >(initialEventId);
-    const [selectedShowId, setSelectedShowId] = React.useState<
-      number | ""
-    >(initialShowId);
+            setFormData((prev) => ({
+              ...prev,
+              [name]: value,
+            }));
 
-    const selectedShow = shows.find((s) => s.showId === selectedShowId);
+            // yahan row ke data ko update karo
+            row._valuesCache.layout = {
+              ...row._valuesCache.layout,
+              [name]: value,
+            };
+          };
 
-    // Event change handler
-    const handleEventChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const eventId = Number(e.target.value);
-      setSelectedEventId(eventId);
-      setSelectedShowId(""); // reset show when event changes
-      dispatch(listAllShowsByEvent(eventId));
-    };
+          const dispatch = useAppDispatch();
 
-    // Show change handler
-    const handleShowChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = Number(e.target.value);
-      setSelectedShowId(value);
-      setShowId(value);
-    };
+          // row se showId nikal lo
+          const initialShowId = row.original.showId || "";
 
-    // Agar pehle se eventId set hai to uske shows fetch kara lo (ek bar hi)
-    React.useEffect(() => {
-      if (initialEventId) {
-        dispatch(listAllShowsByEvent(initialEventId));
-      }
-    }, [initialEventId, dispatch]);
+          const initialShow = shows.find((s) => s.showId === initialShowId);
 
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-        {/* Event Selector */}
-        <TextField
-          select
-          label="Select Event"
-          value={selectedEventId}
-          onChange={handleEventChange}
-          size="small"
-        >
-          {events.map((event) => (
-            <MenuItem key={event.eventId} value={event.eventId}>
-              {event.name}
-            </MenuItem>
-          ))}
-        </TextField>
+          // agar show mila hai to uska eventId lo, warna empty
+          const initialEventId = initialShow?.eventId || "";
 
-        {/* Show Selector */}
-        {selectedEventId && (
-          <>
-            {!shows.length ? (
-              <p>Loading shows...</p>
-            ) : (
+          const [selectedEventId, setSelectedEventId] = React.useState<
+            number | ""
+          >(initialEventId);
+
+          const [selectedShowId, setSelectedShowId] = React.useState<
+            number | ""
+          >(initialShowId);
+
+          const selectedShow = shows.find((s) => s.showId === selectedShowId);
+
+          // Event change handler
+          const handleEventChange = (
+            e: React.ChangeEvent<HTMLInputElement>
+          ) => {
+            const eventId = Number(e.target.value);
+            setSelectedEventId(eventId);
+            setSelectedShowId(""); // reset show when event changes
+            dispatch(listAllShowsByEvent(eventId));
+          };
+
+          // Show change handler
+          const handleShowChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const value = Number(e.target.value);
+            setSelectedShowId(value);
+            setShowId(value);
+          };
+
+          // Agar pehle se eventId set hai to uske shows fetch kara lo (ek bar hi)
+          React.useEffect(() => {
+            if (initialEventId) {
+              dispatch(listAllShowsByEvent(initialEventId));
+            }
+          }, [initialEventId, dispatch]);
+
+          return (
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+            >
+              {/* Event Selector */}
               <TextField
                 select
-                label="Select Show"
-                value={selectedShowId}
-                onChange={handleShowChange}
+                label="Select Event"
+                value={selectedEventId}
+                onChange={handleEventChange}
                 size="small"
               >
-                {shows.map((show) => (
-                  <MenuItem key={show.showId} value={show.showId}>
-                    <Typography variant="body2">
-                      <strong>SHOW ID:</strong> {show.showId}{" "}
-                      <strong>DATE:</strong> {show.showDate}{" "}
-                      <strong>VENUE:</strong> {show.venueName}
-                    </Typography>
+                {events.map((event) => (
+                  <MenuItem key={event.eventId} value={event.eventId}>
+                    {event.name}
                   </MenuItem>
                 ))}
               </TextField>
-            )}
-          </>
-        )}
 
-        {/* Conditional UI */}
-        {selectedShow?.bookingType === "SEAT_BASED" && (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "12px",
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-              padding: "12px",
-            }}
-          >
-            <label style={{ fontSize: "14px", fontWeight: 500 }}>
-              Enter Layout Data
-            </label>
+              {/* Show Selector */}
+              {selectedEventId && (
+                <>
+                  {!shows.length ? (
+                    <p>Loading shows...</p>
+                  ) : (
+                    <TextField
+                      select
+                      label="Select Show"
+                      value={selectedShowId}
+                      onChange={handleShowChange}
+                      size="small"
+                    >
+                      {shows.map((show) => (
+                        <MenuItem key={show.showId} value={show.showId}>
+                          <Typography variant="body2">
+                            <strong>SHOW ID:</strong> {show.showId}{" "}
+                            <strong>DATE:</strong> {show.showDate}{" "}
+                            <strong>VENUE:</strong> {show.venueName}
+                          </Typography>
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  )}
+                </>
+              )}
 
-            <TextField label="Rows" type="number" size="small" />
-            <TextField label="Seats per Row" type="number" size="small" />
-            <TextField
-              label="Row Labels (comma separated)"
-              type="text"
-              size="small"
-            />
-          </div>
-        )}
+              {/* Conditional UI */}
+              {selectedShow?.bookingType === "SEAT_BASED" && (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "12px",
+                    border: "1px solid #ddd",
+                    borderRadius: "8px",
+                    padding: "12px",
+                  }}
+                >
+                  <label style={{ fontSize: "14px", fontWeight: 500 }}>
+                    Enter Layout Data
+                  </label>
 
-        {selectedShow?.bookingType === "GENERAL_ADMISSION" && (
-          <p
-            style={{
-              fontSize: "14px",
-              color: "gray",
-              fontStyle: "italic",
-            }}
-          >
-            General Admission – No extra layout needed
-          </p>
-        )}
-      </div>
-    );
-  },
-},
+                  <TextField
+                    label="Rows"
+                    type="number"
+                    size="small"
+                    name="rows"
+                    value={formData.rows}
+                    onChange={handleChange}
+                  />
+                  <TextField
+                    label="Seats per Row"
+                    type="number"
+                    size="small"
+                    name="seatsPerRow"
+                    value={formData.seatsPerRow}
+                    onChange={handleChange}
+                  />
+                  <TextField
+                    label="Row Labels (comma separated)"
+                    type="text"
+                    size="small"
+                    name="rowLabels"
+                    value={formData.rowLabels}
+                    onChange={handleChange}
+                  />
+                </div>
+              )}
 
+              {selectedShow?.bookingType === "GENERAL_ADMISSION" && (
+                <p
+                  style={{
+                    fontSize: "14px",
+                    color: "gray",
+                    fontStyle: "italic",
+                  }}
+                >
+                  General Admission – No extra layout needed
+                </p>
+              )}
+            </div>
+          );
+        },
+      },
 
       {
         accessorKey: "categoryId",
@@ -311,21 +354,27 @@ export default function TicketCategory() {
     async ({ values, row, table }) => {
       try {
         // ✅ Convert values to proper types
+
         const formData = {
           name: values.name as string,
           price: Number(values.price),
           capacity: Number(values.capacity),
           description: values.description as string,
-          layout: {
-            rows: Number(values.layout?.rows),
-            seatsPerRow: Number(values.layout?.seatsPerRow),
-            rowLabels: (values.layout?.rowLabels as string)
-              ?.split(",") // "A,B,C" → ["A","B","C"]
-              .map((label: string) => label.trim())
-              .filter((label: string) => label.length > 0),
-          },
+
+          // layout tabhi include hoga jab bookingType "seatbased" ho
+          ...(values.bookingType === "SEAT_BASED" && {
+            layout: {
+              rows: Number(values.layout?.rows),
+              seatsPerRow: Number(values.layout?.seatsPerRow),
+              rowLabels: (values.layout?.rowLabels as string)
+                ?.split(",") // "A,B,C" → ["A","B","C"]
+                .map((label: string) => label.trim())
+                .filter((label: string) => label.length > 0),
+            },
+          }),
         };
 
+        console.log("FORM DATA....", formData);
         const result = await (dispatch(
           updateTicketCategory({ id: row.original.categoryId, formData })
         ) as unknown as Promise<{ success: boolean }>);
@@ -407,7 +456,7 @@ export default function TicketCategory() {
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
         >
-          {internalEditComponents.filter((_, index) => index < 5)}
+          {internalEditComponents.filter((_, index) => index < 6)}
 
           {/* Custom comments field - only appears in create dialog */}
         </DialogContent>

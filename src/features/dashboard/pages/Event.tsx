@@ -41,15 +41,15 @@ import type { EventResponse } from "../../../interfaces/eventInterFace";
 import { listAllOrganizers } from "../../../services/operations/organizerApi";
 import { listAllArtists } from "../../../services/operations/artistApi";
 import { clearEventsError, setEventsError } from "../../../slices/eventSlice";
+import ErrorPopup from "../../../components/ErrorMassage";
 
 const LANGUAGE_OPTIONS = ["English", "Swahili"];
 
 export default function EventComponent() {
   const dispatch = useAppDispatch();
 
-  const [organiserId, setOrganiserId] = useState<number>();
-
   const eventError = useAppSelector((state) => state.event.error);
+  const errorMassage = useAppSelector((state) => state.event.errorMassage);
 
   const events = useAppSelector((state) => state.event.data || []);
   const artists = useAppSelector((state) => state.artist.data || []);
@@ -60,6 +60,7 @@ export default function EventComponent() {
     dispatch(listAllOrganizers());
     dispatch(listAllArtists());
   }, [dispatch]);
+
 
   // Columns - NO customField column here
   const columns = useMemo<MRT_ColumnDef<EventResponse>[]>(
@@ -350,103 +351,110 @@ export default function EventComponent() {
         },
       },
 
+
       {
         accessorKey: "organizerName",
         header: "Organizer Name",
-        editVariant: "select", // Make it a select dropdown
 
-        // Options for the dropdown
-        editSelectOptions: organisers.map((organiser) => ({
-          value: organiser.name,
-          label: organiser.name,
-        })),
+        Edit: ({ cell, row }) => {
+          const initialOrganizer = organisers.find(
+            (o) => o.name === cell.getValue<string>()
+          );
+          const [selectedId, setSelectedId] = useState<number | undefined>(
+            initialOrganizer?.id
+          );
 
-        // Handle selection change to update countryId
-        muiEditTextFieldProps: {
-          required: true,
-          onChange: (event) => {
-            const selectedOrganiserName = event.target.value;
-            const selectedOrganiser = organisers.find(
-              (organiser) => organiser.name === selectedOrganiserName
-            );
-            if (selectedOrganiser) {
-              setOrganiserId(selectedOrganiser.id);
-            }
-          },
+          // Row cache me bhi update karo
+          useEffect(() => {
+            row._valuesCache["organizerId"] = selectedId;
+          }, [selectedId,row._valuesCache]);
+
+          return (
+            <Select
+              value={selectedId ||""}
+              onChange={(e) => setSelectedId(Number(e.target.value))}
+              fullWidth
+            >
+              {organisers.map((organiser) => (
+                <MenuItem key={organiser.id} value={organiser.id}>
+                  {organiser.name}
+                </MenuItem>
+              ))}
+            </Select>
+          );
         },
       },
 
       {
-        accessorKey: "artists",
-        header: "Artists",
+         accessorKey: "artists",
+  header: "Artists",
+  Cell: ({ row }) => {
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-        Cell: () => {
-          const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+      setAnchorEl(event.currentTarget);
+    };
 
-          const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
-            setAnchorEl(event.currentTarget);
-          };
+    const handleClose = () => {
+      setAnchorEl(null);
+    };
 
-          const handleClose = () => {
-            setAnchorEl(null);
-          };
+    // 👇 Ye row ke artists le raha hai
+    const artists = row.original.artists || [];
 
-          return (
-            <div>
-              <Button variant="outlined" size="small" onClick={handleOpen}>
-                Artist Details
-              </Button>
+    return (
+      <div>
+        <Button variant="outlined" size="small" onClick={handleOpen}>
+          Artist Details
+        </Button>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleClose}
+        >
+          {artists.map((artist, idx) => {
+            const fields: { label: string; value: string }[] = [
+              { label: "Name", value: artist.name },
+              { label: "Description", value: artist.description },
+              { label: "Image URL", value: artist.imageUrl },
+              { label: "DOB", value: artist.dateOfBirth },
+              { label: "Nationality", value: artist.nationality },
+              { label: "Website URL", value: artist.websiteUrl },
+              {
+                label: "Instagram Handle",
+                value: artist.instagramHandle ?? "",
+              },
+              {
+                label: "Twitter Handle",
+                value: artist.twitterHandle ?? "",
+              },
+              {
+                label: "Active",
+                value: artist.active ? "Yes" : "No",
+              },
+              { label: "Role", value: artist.role },
+            ];
 
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-              >
-                {events?.map((event) => (
-                  <MenuItem key={event.eventId} onClick={handleClose}>
-                    {event.artists.map((artist, idx) => {
-                      // List of fields to display
-                      const fields: { label: string; value: string }[] = [
-                        { label: "Name", value: artist.name },
-                        { label: "Description", value: artist.description },
-                        { label: "Image URL", value: artist.imageUrl },
-                        { label: "DOB", value: artist.dateOfBirth },
-                        { label: "Nationality", value: artist.nationality },
-                        { label: "Website URL", value: artist.websiteUrl },
-                        {
-                          label: "Instagram Handle",
-                          value: artist.instagramHandle ?? "",
-                        },
-                        {
-                          label: "Twitter Handle",
-                          value: artist.twitterHandle ?? "",
-                        },
-                        {
-                          label: "Active",
-                          value: artist.active ? "Yes" : "No",
-                        },
-                        { label: "Role", value: artist.role },
-                      ];
-
-                      return (
-                        <Box key={idx} mb={1}>
-                          {fields.map((field) => (
-                            <Typography variant="body2" key={field.label}>
-                              <strong>{field.label}:</strong>{" "}
-                              {field.value ?? "N/A"}
-                            </Typography>
-                          ))}
-                        </Box>
-                      );
-                    })}
-                  </MenuItem>
-                ))}
-              </Menu>
-            </div>
-          );
-        },
+            return (
+              <MenuItem key={idx} onClick={handleClose}>
+                <Box mb={1}>
+                  {fields.map((field) => (
+                    <Typography variant="body2" key={field.label}>
+                      <strong>{field.label}:</strong>{" "}
+                      {field.value ?? "N/A"}
+                    </Typography>
+                  ))}
+                </Box>
+              </MenuItem>
+            );
+          })}
+        </Menu>
+      </div>
+    );
+  },
 
         Edit: ({ cell, row }) => {
+          console.log(cell.id);
           const initialSelected = (row.original.artists || []).map((a) => ({
             artistId: a.id,
             role: a.role || "",
@@ -584,11 +592,11 @@ export default function EventComponent() {
               size="small"
               fullWidth
             >
-              <MenuItem value="ACTIVE">DRAFT</MenuItem>
-              <MenuItem value="INACTIVE">UPCOMING</MenuItem>
-              <MenuItem value="UNDER_MAINTENANCE">ACTIVE</MenuItem>
-              <MenuItem value="CLOSED">COMPLETED</MenuItem>
-              <MenuItem value="CLOSED" className="text-red-500">
+              <MenuItem value="DRAFT">DRAFT</MenuItem>
+              <MenuItem value="UPCOMING">UPCOMING</MenuItem>
+              <MenuItem value="ACTIVE">ACTIVE</MenuItem>
+              <MenuItem value="COMPLETED">COMPLETED</MenuItem>
+              <MenuItem value="CANCELLED" className="text-red-500">
                 CANCELLED
               </MenuItem>
             </Select>
@@ -621,7 +629,7 @@ export default function EventComponent() {
           thumbnailUrl: values.thumbnailUrl || "",
           trailerUrl: values.trailerUrl || "",
           basePrice: Number(values.basePrice) || 0,
-          organizerId: organiserId || 0, // Make sure this is the ID of selected organizer
+          organizerId: values.organizerId, // Make sure this is the ID of selected organizer
           artists: values.artists || [], // Array of objects like { artistId: number, role: string }
         };
 
@@ -646,6 +654,7 @@ export default function EventComponent() {
     async ({ values, row, table }) => {
       try {
         // ✅ Only pick required fields for VenueRequest
+
         const formData: CreateEventProps = {
           name: values.name || "", // Event name
           shortDescription: values.shortDescription || "",
@@ -663,8 +672,15 @@ export default function EventComponent() {
           trailerUrl: values.trailerUrl || "",
           basePrice: Number(values.basePrice) || 0,
           organizerId: values.organizerId || 0, // Make sure this is the ID of selected organizer
-          artists: values.artists || [], // Array of objects like { artistId: number, role: string }
+          artists: (values.artists || []).map(
+            (value: { id: number | string; role: string }) => ({
+              artistId: value.id,
+              role: value.role,
+            })
+          ), // Array of objects like { artistId: number, role: string }
         };
+
+        console.log('FORM DATA..',formData);
 
         const result = await (dispatch(
           updateEvent({ formData, id: row.original.eventId })
@@ -719,6 +735,7 @@ export default function EventComponent() {
     a.click();
     URL.revokeObjectURL(url);
   };
+
 
   // Table setup
   const table = useMaterialReactTable({
@@ -797,5 +814,14 @@ export default function EventComponent() {
     ),
   });
 
-  return <MaterialReactTable table={table} />;
+  return (
+    <div className="relative">
+      {/* 1️⃣ Error Popup */}
+      {errorMassage && <ErrorPopup/>}
+
+      {/* 2️⃣ Material React Table */}
+      <MaterialReactTable table={table} />
+    </div>
+  );
+  
 }

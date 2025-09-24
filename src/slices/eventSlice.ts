@@ -17,12 +17,14 @@ interface EventsState {
   data: EventResponse[] | null;
   loading: boolean;
   error: EventsErrorResponse | null;
+  errorMassage:string | null
 }
 
 const initialState: EventsState = {
   data: null,
   loading: false,
   error: null,
+  errorMassage:null
 };
 
 const eventsSlice = createSlice({
@@ -38,6 +40,12 @@ const eventsSlice = createSlice({
     setEventsError: (state, action: PayloadAction<EventsErrorResponse | null>) => {
       state.error = action.payload;
     },
+    setErrorMassage: (state, action: PayloadAction<string | null>) => {
+      state.errorMassage = action.payload;
+    },
+    clearErrorMassage: (state) => {
+      state.errorMassage = null;
+    },
     clearEventsError: (state) => {
       state.error = null;
     },
@@ -49,6 +57,8 @@ export const {
   setEventsLoading,
   setEventsError,
   clearEventsError,
+  setErrorMassage,
+  clearErrorMassage
 } = eventsSlice.actions;
 
 export default eventsSlice.reducer;

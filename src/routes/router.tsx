@@ -85,4 +85,4 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]);
+],{basename:"/adminpannel"});

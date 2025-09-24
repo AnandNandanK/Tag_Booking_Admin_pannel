@@ -34,4 +34,4 @@ jobs:
       - name: Transfer new dist
         run: |
           mkdir -p /home/apps/frontendserver-ticketingdashboard
-          mv ~/githubrunners/ticketingadminPannel/adminpannel/Tag_Booking_Admin_pannel/Tag_Booking_Admin_pannelg/dist /home/apps/frontendserver-ticketingdashboard/
+          mv ~/githubrunners/ticketingadminPannel/adminpannel/Tag_Booking_Admin_pannel/Tag_Booking_Admin_pannel/dist /home/apps/frontendserver-ticketingdashboard/

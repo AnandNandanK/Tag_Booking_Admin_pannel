@@ -36,14 +36,22 @@ export default function Login() {
       <div className="bg-white h-11/12 w-11/12 lg:h-[80%] lg:w-[80%]  flex lg:justify-between justify-center rounded-2xl shadow-2xl">
         {/* LEFT DIV */}
         <div className="bg-blue-500 h-full w-9/12 hidden md:flex lg:flex justify-center items-center">
-          <div className="">
-            <h1 className="text-8xl font-bold font text-white px-1">
+         
+          <div className="w-full space-y-2">
+
+            <div className="w-32 mx-auto">
+            <img src="public/ticketlogo2.jpg" className=""></img>
+            </div>
+
+            <h1 className="text-8xl font-bold font text-white px-1 w-fit mx-auto">
               Ticketing
             </h1>
+
             <p className="text-gray-200 mt-4 text-sm text-center">
-              Welcome back to the website!
+             No lines, just vibes!
             </p>
           </div>
+
         </div>
 
         {/* RIGHT DIV */}

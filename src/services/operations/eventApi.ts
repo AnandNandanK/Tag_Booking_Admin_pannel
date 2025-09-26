@@ -131,7 +131,7 @@ export function updateEvent({
         withCredentials: true,
       });
 
-      console.log("UPDATE EVENT RESPONSE:", response.data);
+      console.log("UPDATE EVENT RESPONSE:", response);
 
       if (response.data.statusCode === 200) {
         dispatch(listAllEvents());

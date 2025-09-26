@@ -40,7 +40,7 @@ export default function Login() {
           <div className="w-full space-y-2">
 
             <div className="w-32 mx-auto">
-            <img src="public/ticketlogo2.jpg" className=""></img>
+            <img src="ticketlogo2.jpg" className=""></img>
             </div>
 
             <h1 className="text-8xl font-bold font text-white px-1 w-fit mx-auto">

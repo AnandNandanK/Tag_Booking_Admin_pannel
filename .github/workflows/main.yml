@@ -1,0 +1,37 @@
+name: Build Ticketing Admin Pannel Project
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18 # or your project version
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Project
+        run: npm run build
+
+      - name: Remove old dist
+        run: |
+          if [ -d /home/apps/frontendserver-ticketingdashboard/dist ]; then
+            rm -rf /home/apps/frontendserver-ticketingdashboard/dist
+          fi
+
+      - name: Transfer new dist
+        run: |
+          mkdir -p /home/apps/frontendserver-ticketingdashboard
+          mv ~/githubrunners/ticketingadminPannel/adminpannel/Tag_Booking_Admin_pannel/Tag_Booking_Admin_pannel/dist /home/apps/frontendserver-ticketingdashboard/

@@ -35,12 +35,12 @@ export default function Login() {
     <div className="bg-gray-200 h-screen w-screen flex justify-center items-center">
       <div className="bg-white h-11/12 w-11/12 lg:h-[80%] lg:w-[80%]  flex lg:justify-between justify-center rounded-2xl shadow-2xl">
         {/* LEFT DIV */}
-        <div className="bg-blue-500 h-full w-9/12 hidden md:flex lg:flex justify-center items-center">
+        <div className="bg-blue-500 relative h-full w-9/12 hidden md:flex lg:flex justify-center items-center">
          
           <div className="w-full space-y-2">
 
-            <div className="w-32 mx-auto">
-            <img src="ticketlogo2.jpg" className=""></img>
+            <div className="w-24 mx-auto absolute top-3 left-3">
+            <img src="ticketlogo2.jpg" className="rounded-md"></img>
             </div>
 
             <h1 className="text-8xl font-bold font text-white px-1 w-fit mx-auto">
@@ -48,7 +48,7 @@ export default function Login() {
             </h1>
 
             <p className="text-gray-200 mt-4 text-sm text-center">
-             No lines, just vibes!
+             #No lines, just vibes!
             </p>
           </div>
 

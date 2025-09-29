@@ -108,17 +108,17 @@ interface updateCityResponse {
 
 interface updateProps {
   name: string,
-  countryId:string,
+  cityId:string,
   regionId: string
 }
 
 
-export function updateCity({ name,countryId, regionId }: updateProps) {
+export function updateCity({ name,cityId, regionId }: updateProps) {
   return async (dispatch: AppDispatch): Promise<{ success: boolean }> => {
     try {
       const response = await apiConnector<ApiResponse<updateCityResponse>>({
         method: "PUT",
-        url: `https://thedemonstrate.com/ticketcore-api/api/v1/countries/${countryId}/regions/${regionId}`,
+        url: `https://thedemonstrate.com/ticketcore-api/api/v1/regions/${regionId}/cities/${cityId}`,
         bodyData: { name},
         headers: {
           "X-Client-Source": "WEB",

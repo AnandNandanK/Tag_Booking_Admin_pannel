@@ -153,8 +153,9 @@ export default function Regions() {
         },
       },
     ],
-    [dispatch, citiesError,cities]
+    [dispatch, citiesError,regions,]
   );
+
 
   // Create row save
   const handleCreate: MRT_TableOptions<citiesResponse>["onCreatingRowSave"] =
@@ -186,13 +187,14 @@ export default function Regions() {
   // Update row save
   const handleUpdate: MRT_TableOptions<citiesResponse>["onEditingRowSave"] =
     async ({ values, row, table }) => {
+      console.log(row.original);
       try {
         if (row.original.id) {
           await (dispatch as AppDispatch)(
             updateCity({
               name: values.name, // input se aaya hua naya naam
-              countryId: row.original.countryId.toString(), // API ko string chahiye
-              regionId: row.original.id.toString(), // row ke id ko regionId bhejna hai
+              cityId: row.original.id.toString(), // API ko string chahiye
+              regionId: row.original.regionId.toString(), // row ke id ko regionId bhejna hai
             })
           );
         }
